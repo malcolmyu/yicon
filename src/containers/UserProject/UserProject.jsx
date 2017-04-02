@@ -13,6 +13,8 @@ import Dialog from '../../components/common/Dialog/Index.jsx';
 import DownloadDialog from '../../components/DownloadDialog/DownloadDialog.jsx';
 import IconButton from '../../components/common/IconButton/IconButton.jsx';
 import { versionTools } from '../../helpers/utils';
+import Input from '../../components/common/Input/Index.jsx';
+import { PROJECT_NAME } from '../../constants/validate';
 import {
   getUsersProjectList,
   getUserProjectInfo,
@@ -101,6 +103,7 @@ class UserProject extends Component {
       showHistoryVersion: false,
       isShowDownloadDialog: false,
       generateVersion: 'revision',
+      fontNameDialogVisible: false,
     };
     this.highestVersion = '0.0.0';
     this.nextVersion = '0.0.1';
@@ -283,11 +286,29 @@ class UserProject extends Component {
 
   @autobind
   downloadAllIcons() {
+    this.setState({
+      fontNameDialogVisible: true,
+    });
+  }
+
+  @autobind
+  cancelFinalDownload() {
+    this.setState({
+      fontNameDialogVisible: false,
+    });
+  }
+
+  @autobind
+  finalDownload() {
     const id = this.props.projectId;
+    const fontName = this.refs.fontNameInput.getVal();
     axios
-      .post('/api/download/font', { type: 'project', id })
+      .post('/api/download/font', { type: 'project', id, fontName })
       .then(({ data }) => {
         if (data.res) {
+          this.setState({
+            fontNameDialogVisible: false,
+          });
           window.location.href = `/download/${data.data}`;
         }
       });
@@ -391,6 +412,23 @@ class UserProject extends Component {
           getShow={this.dialogUpdateShow}
         >
           <DownloadDialog />
+        </Dialog>,
+        <Dialog
+          title="编辑下载字体名称"
+          key={5}
+          onOk={this.finalDownload}
+          onCancel={this.closeDownloadDialog}
+          visible={this.state.fontNameDialogVisible}
+        >
+          <Input
+            placeholder="请输入字体名称"
+            defaultValue={current.name}
+            extraClass="edit-name"
+            keyDown={this.save}
+            regExp={PROJECT_NAME.reg}
+            errMsg={PROJECT_NAME.message}
+            ref="fontNameInput"
+          />
         </Dialog>,
       ];
     }
