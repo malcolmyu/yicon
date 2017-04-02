@@ -417,7 +417,7 @@ class UserProject extends Component {
           title="编辑下载字体名称"
           key={5}
           onOk={this.finalDownload}
-          onCancel={this.closeDownloadDialog}
+          onCancel={this.cancelFinalDownload}
           visible={this.state.fontNameDialogVisible}
         >
           <Input
